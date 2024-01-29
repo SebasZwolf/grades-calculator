@@ -150,7 +150,7 @@ onMounted(() => {
               </td>
               <td>
                 <div class="input">
-                  <input @change="e => e.target!.value = Number(e.target!.value).toFixed(2)" tabindex="2" :name="`${i}-1`" required type="number" step=".5" max="100" min="0" :placeholder="percent" />
+                  <input @change="e => (e.target as HTMLInputElement).value = Number((e.target as HTMLInputElement).value).toFixed(2)" tabindex="2" :name="`${i}-1`" required type="number" step=".5" max="100" min="0" :placeholder="percent" />
                   <span>%</span>
                 </div>
               </td>
