@@ -45,6 +45,15 @@ body {
   font-family: system-ui, 'Segoe UI', Roboto, 'Open Sans', sans-serif;
 }
 
+.sr-only {
+	position: absolute;
+	width: 0px;
+	height: 0px;
+	padding: 0;
+	overflow: hidden;
+	border-width: 0;
+}
+
 * {
   box-sizing: border-box;
 }

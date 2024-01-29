@@ -7,9 +7,7 @@ const rows = ref<number[]>(Array.from({ length : 3 }, getID));
 const percent = computed(() => (100 / rows.value.length).toFixed(2));
 
 
-const addRow = function () {
-  rows.value.push(getID());
-}
+const addRow = () => rows.value.push(getID());
 
 const delRow = function (i: number) {
   if (rows.value.length <= 1)
@@ -29,10 +27,9 @@ const execute = function (e: Event) {
 
   const entries = new FormData(e.target as HTMLFormElement);
 
+  
   const reqScore = Number(entries.get('req-score'));
-
   type t_record = [string, number, number];
- 
   const [graded, ungraded, sum] = rows.value.reduce<[t_record[],t_record[], number]>((p, _, i) => {
 
     const record : t_record = [
@@ -48,31 +45,31 @@ const execute = function (e: Event) {
   }, [[],[], 0])
 
 
-  if ( Math.abs(sum - 1.0) > 0.01)
+  if (Math.abs(sum - 1.0) > 0.01)
     console.warn('suma de porcentajes no es igual a 100%');
 
-  const accScore = graded.reduce((p, [,w,s]) => {
-    return p + w * s;
-  }, 0);
+  // const accScore = graded.reduce((p, [,w,s]) => p + w * s, 0);
+  // const accValue = graded.reduce((p, [,w]) => p + w, 0) * 20.0;
+  
+  const [accScore, accValue] = graded.reduce<[number, number]>(([ps,pw], [,w,s]) => [ps + w * s, pw + w], [0,0]);
 
-  const canAprov = reqScore - accScore <= ungraded.reduce((p, [,w]) => {
-    return p + w * 20.0;
-  }, 0);
-
+  const canAprov = reqScore - accScore <= ungraded.reduce((p, [,w]) => p + w * 20.0, 0);
 
   const msgFinal = reqScore <= accScore ? 
-  'Ya has pasado el curso!' : (function(){
-    if(ungraded.length !== 1)
-      return 'si quieres calcular cuanto necesitas en un examen para pasar el curso, debes llenar primero las notas en los demás examenes';
+    'Ya has pasado el curso!' : 
+    ungraded.length === 1 ? 
+      (function(){
+        const [t,w] = ungraded[0];
 
-    const [t,w] = ungraded[0];
-    const req = (reqScore - accScore) / w;
-
-    return `${req > 20 ? 'necesitarías' : 'necesitas'} ${ req.toFixed(2) } en el ${t || 'examen final'} para pasar`
-
-  })();
+        return `${ canAprov ? 'necesitas' : 'necesitarías' } ${ ((reqScore - accScore) / w).toFixed(2) } en el ${t || 'examen final'} para pasar`
+      })() : 
+      (function(){
+        return 'deja el puntaje de UNA sola evaluación en blanco para calcular cuanto necesitas (o necesitarías, si ya jalaste 😢) para aprobar';
+      })();
 
   e_accScore.value!.value = accScore.toFixed(2);
+  e_accScore.value!.nextElementSibling!.textContent = '/' + (accValue * 20.0).toFixed(2);
+
   e_canAprov.value!.value = canAprov ? 'Sí' : 'No';
   e_msgFinal.value!.value = msgFinal;
 }
@@ -85,13 +82,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="base">
+  <main class="base">
     <h1>Calcula promedios</h1>
 
     <section>
       <h2>Instrucciones</h2>
       <p>
-        para pasar del curso debes estudiar, dale bro, no es tan difícil.
+        Ingresa las notas de todas tus evaluaciones de modo que la suma del <code>peso</code> de todas sea <code>100%</code>.
+        Puedes agregar un nombre a cada evaluación (o dejarlas en blanco) para que sea te sea más fácil organizarte.
+
+        Debes llenar
       </p>
     </section>
 
@@ -109,7 +109,7 @@ onMounted(() => {
           <tbody>
             <tr>
               <th scope="row" style="text-align: left;">Puntaje requerido para aprobar</th>
-              <td>
+              <td colspan="2">
                 <div class="input">
                   <input name="req-score" required type="number" step=".05" min="0" max="20" value="12.5" />
                   <span>/20</span>
@@ -176,7 +176,7 @@ onMounted(() => {
       </section>
 
       <div style="text-align: center; margin-block: 2rem;">
-        <button style="padding: .25rem 2rem; border-radius: 4px; line-height: 1; background-color: #43f; border: none;">calcular</button>
+        <button style="padding: .25rem 2rem; border-radius: 4px; line-height: 1; background-color: #43f; border: none; color: white;">calcular</button>
       </div>
 
       <section>
@@ -191,7 +191,7 @@ onMounted(() => {
 
           <tbody>
             <tr>
-              <th scope="row" colspan="2" style="text-align: left;">Has acumulado hasta ahora:</th>
+              <th scope="row" colspan="2" style="text-align: left;">Tienes acumulado hasta ahora: / lo que podrías tener si sacabas 20:</th>
               <td>
                 <div class="input">
                   <output ref="e_accScore" style="text-align: right; padding-inline: .5rem;"></output>
@@ -217,18 +217,15 @@ onMounted(() => {
             </tr>
           </tbody>
         </table>
-
-
-
       </section>
 
     </form>
-  </div>
+  </main>
 </template>
 
 <style>
 .base {
-  max-width: min(1200px, 100%);
+  max-width: min(56rem, 100%);
   margin-inline: auto;
   padding-inline: .5rem;
 }
