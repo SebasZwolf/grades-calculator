@@ -111,7 +111,7 @@ onMounted(() => {
               <th scope="row" style="text-align: left;">Puntaje requerido para aprobar</th>
               <td colspan="2">
                 <div class="input">
-                  <input name="req-score" required type="number" step=".05" min="0" max="20" value="12.5" />
+                  <input name="req-score" required type="number" inputmode="numeric" pattern="\d*" step=".05" min="0" max="20" value="12.5" />
                   <span>/20</span>
                 </div>
               </td>
@@ -150,13 +150,13 @@ onMounted(() => {
               </td>
               <td>
                 <div class="input">
-                  <input @change="e => (e.target as HTMLInputElement).value = Number((e.target as HTMLInputElement).value).toFixed(2)" tabindex="2" :name="`${i}-1`" required type="number" step=".5" max="100" min="0" :placeholder="percent" />
+                  <input @change="e => (e.target as HTMLInputElement).value = Number((e.target as HTMLInputElement).value).toFixed(2)" tabindex="2" :name="`${i}-1`" required type="number" inputmode="numeric" pattern="\d*" step=".5" max="100" min="0" :placeholder="percent" />
                   <span>%</span>
                 </div>
               </td>
               <td>
                 <div class="input">
-                  <input tabindex="3" :name="`${i}-2`" required type="number" step=".05" max="20" min="0"
+                  <input tabindex="3" :name="`${i}-2`" required type="number" inputmode="numeric" pattern="\d*" step=".05" max="20" min="0"
                     :placeholder="(12.5).toFixed(2)" />
                   <span>/20</span>
                 </div>
@@ -168,7 +168,7 @@ onMounted(() => {
             <tr>
               <td>{{ rows.length + 1 }}</td>
               <td colspan="3" style="text-align: center">
-                <button type="button" @click="addRow">agregar</button>
+                <button class="action-button" type="button" @click="addRow">agregar</button>
               </td>
             </tr>
           </tbody>
@@ -176,7 +176,9 @@ onMounted(() => {
       </section>
 
       <div style="text-align: center; margin-block: 2rem;">
-        <button style="padding: .25rem 2rem; border-radius: 4px; line-height: 1; background-color: #43f; border: none; color: white;">calcular</button>
+        <button 
+          class="action-button"
+          style="--theme: #43fa;">calcular</button>
       </div>
 
       <section>
@@ -263,18 +265,23 @@ onMounted(() => {
       font-weight: inherit;
     }
 
-    &[type="number"] { text-align: right; }
+    &[type="number"] {
+      text-align: right;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+    &[type="number"]::-webkit-outer-spin-button,
+    &[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin-right: .5rem;
+    }
+
     &[type="text"] { text-align: left; }
 
     &:focus { outline: none; }
 
-    &:is(output) {
-      line-height: 1.75;
-    }
-
-    &::placeholder {
-      color: #888d;
-    }
+    &:is(output) { line-height: 1.75; }
+    &::placeholder { color: #888d; }
   }
 
   & div.input:only-child:has(> :where(input, output)) {
@@ -282,8 +289,8 @@ onMounted(() => {
       display: flex;
       align-items: stretch;
 
-      margin: .25rem;
-      height: calc(100% - .5rem);
+      margin-inline: .125rem;
+      height: calc(100% - .125rem);
 
       border: 1px solid currentColor;
       border-radius: 4px;
@@ -311,10 +318,12 @@ onMounted(() => {
     }
   }
 
-  &> :where(tbody, thead)>tr> :where(td, th) {
+  & > :where(tbody, thead)>tr> :where(td, th) {
     & {
-      padding: 0;
+      padding: 2px;
       height: 2.25rem;
+
+      vertical-align: middle;
 
       border-block: 1px solid black;
       border-inline: 1px dashed #999;
@@ -329,11 +338,16 @@ onMounted(() => {
       padding-inline: .5rem;
     }
 
-    &:nth-child(5)>button:only-child {
+    &:nth-child(5) > button:only-child {
       display: block;
-      width: auto;
-      height: 75%;
+
+      width: 1.5rem;
+      height: 1.5rem;
+      line-height: 1;
+      padding : 0 0;
+
       margin: 0 auto;
+
       aspect-ratio: 1;
 
       border: none;
@@ -345,16 +359,34 @@ onMounted(() => {
       background-color: #d43;
     }
   }
-
-  &>tbody>tr:last-child>td>button:only-child {
+}
+.action-button {
+  & {
+    line-height: 1.25;
     display: inline-block;
     margin: 0;
     border: none;
-    color: white;
-
+    color: inherit;
+    
+    font-size: 1em;
+    
     padding: .25rem 2.25rem;
     border-radius: 4px;
-
-    background-color: #3b6;
+ 
+    font-weight: bold;
+    
+    background-color: var(--theme, #1a3a);
+    background-clip: padding-box;
+    
+    transition: scale .2s, translate .2s;
   }
-}</style>
+
+  &:hover {
+    background-image: linear-gradient(to top, #0002, #0002);
+  }
+  &:active {
+    background-image: linear-gradient(to top, #0004, #0003);
+    translate : 0 1px;
+  }
+}
+</style>
