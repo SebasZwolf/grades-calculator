@@ -61,7 +61,7 @@ const execute = function (e: Event) {
       (function(){
         const [t,w] = ungraded[0];
 
-        return `${ canAprov ? 'necesitas' : 'necesitarías' } ${ ((reqScore - accScore) / w).toFixed(2) } en el ${t || 'examen final'} para pasar`
+        return `${ canAprov ? 'necesitas' : 'necesitarías' } ${ ((reqScore - accScore) / w).toFixed(2) } en el ${t ? `"${t}"` : 'examen final'} para pasar`
       })() : 
       (function(){
         return 'deja el puntaje de UNA sola evaluación en blanco para calcular cuanto necesitas (o necesitarías, si ya jalaste 😢) para aprobar';
@@ -77,7 +77,7 @@ const execute = function (e: Event) {
 onMounted(() => {
   e_accScore.value!.value = '0.00';
   e_canAprov.value!.value = 'Tal vez';
-  e_msgFinal.value!.value = 'la fé es lo más bonito de la vida';
+  e_msgFinal.value!.value = 'no olvides llenar todos los campos de "%"';
 })
 </script>
 
@@ -85,12 +85,15 @@ onMounted(() => {
   <main class="base">
     <h1>Calcula promedios</h1>
 
-    <section>
+    <section style="margin-block: 1rem">
       <h2>Instrucciones</h2>
-      <p>
+      <p style="line-height: 1.25; margin-block: .5rem;">
         Ingresa las notas de todas tus evaluaciones de modo que la suma del <code>peso</code> de todas sea <code>100%</code>.
+      </p>
+      <p style="line-height: 1.25; margin-block: .5rem;">
         Puedes agregar un nombre a cada evaluación (o dejarlas en blanco) para que sea te sea más fácil organizarte.
-
+      </p>
+      <p style="line-height: 1.25; margin-block: .5rem;">
         Debes llenar
       </p>
     </section>
@@ -193,16 +196,16 @@ onMounted(() => {
 
           <tbody>
             <tr>
-              <th scope="row" colspan="2" style="text-align: left;">Tienes acumulado hasta ahora: / lo que podrías tener si sacabas 20:</th>
-              <td>
-                <div class="input">
-                  <output ref="e_accScore" style="text-align: right; padding-inline: .5rem;"></output>
+              <th scope="row" colspan="2" style="text-align: left;">Nota actual / sobre:</th>
+              <td >
+                <div class="input" >
+                  <output ref="e_accScore" style="text-align: right; padding-inline: .5rem; align-content: center;"></output>
                   <span>/20</span>
                 </div>
               </td>
             </tr>
             <tr>
-              <th scope="row" colspan="2" style="text-align: left;">Tienes oportunidad de aprovar?:</th>
+              <th scope="row" colspan="2" style="text-align: left;">Puedes aprobar?:</th>
               <td>
                 <div class="input">
                   <output ref="e_canAprov" ></output>
@@ -210,10 +213,10 @@ onMounted(() => {
               </td>
             </tr>
             <tr>
-              <th scope="row" colspan="1" style="text-align: left;">Mensaje final:</th>
+              <th scope="row" colspan="1" style="text-align: left; align-content: start;">Mensaje final:</th>
               <td colspan="2" >
                 <div class="input">
-                  <output ref="e_msgFinal" ></output>
+                  <output style="line-height: 1.3; padding-block: .25rem;" ref="e_msgFinal" ></output>
                 </div>
               </td>
             </tr>
@@ -326,7 +329,7 @@ onMounted(() => {
       vertical-align: middle;
 
       border-block: 1px solid black;
-      border-inline: 1px dashed #999;
+      /* border-inline: 1px dashed #999; */
     }
 
     &:nth-child(1) {
